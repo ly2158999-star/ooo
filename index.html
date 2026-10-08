@@ -1,37 +1,46 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إلى حسون | Miku World 💙✨</title>
-    
-    <!-- Three.js Visual Engine -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إلى حسون | Hatsune Miku Cyber World 💙✨</title>
+
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Mplus+1p:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Mplus+1p:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --miku-cyan: #00f3ff;
+            --miku-pink: #ff007f;
+            --miku-purple: #8a2be2;
+            --miku-dark: #030712;
+            --glass-bg: rgba(10, 15, 30, 0.75);
+            --glass-border: rgba(0, 243, 255, 0.35);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Tajawal', sans-serif;
-            -webkit-tap-highlight-color: transparent;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #030712;
+            background-color: var(--miku-dark);
             color: #ffffff;
+            position: relative;
         }
 
-        /* 3D WebGL Background Container */
-        #canvas-container {
+        /* 3D Canvas Background */
+        #webgl-container {
             position: fixed;
             top: 0;
             left: 0;
@@ -41,62 +50,91 @@
             pointer-events: none;
         }
 
-        /* Start Overlay Screen for Audio Unblock */
-        .intro-overlay {
+        /* Audio Element hidden */
+        audio {
+            display: none;
+        }
+
+        /* Intro Screen for Autoplay Unblock */
+        .intro-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(3, 7, 18, 0.95);
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            z-index: 100;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-            padding: 20px;
             text-align: center;
+            padding: 24px;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
         }
 
-        .intro-overlay.hidden {
+        .intro-screen.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
 
-        .miku-logo {
+        .japanese-title {
             font-family: 'Mplus 1p', sans-serif;
-            font-size: 38px;
-            color: #00f3ff;
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.8), 0 0 40px rgba(138, 43, 226, 0.6);
-            margin-bottom: 15px;
-            letter-spacing: 2px;
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--miku-cyan), #ffffff, var(--miku-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            animation: glowText 2s infinite alternate;
+        }
+
+        @keyframes glowText {
+            0% { filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.5)); }
+            100% { filter: drop-shadow(0 0 35px rgba(255, 0, 127, 0.8)); }
+        }
+
+        .intro-sub {
+            color: #94a3b8;
+            font-size: 18px;
+            margin-bottom: 35px;
+            font-weight: 500;
         }
 
         .start-btn {
-            background: linear-gradient(135deg, #00f3ff 0%, #8a2be2 100%);
+            position: relative;
+            background: linear-gradient(135deg, var(--miku-cyan) 0%, var(--miku-purple) 100%);
             color: #ffffff;
             border: none;
-            padding: 18px 45px;
-            font-size: 18px;
+            padding: 20px 50px;
+            font-size: 20px;
             font-weight: 800;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
-            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             animation: pulseBtn 2s infinite alternate;
         }
 
         @keyframes pulseBtn {
             0% { transform: scale(1); box-shadow: 0 0 25px rgba(0, 243, 255, 0.4); }
-            100% { transform: scale(1.08); box-shadow: 0 0 45px rgba(138, 43, 226, 0.8); }
+            100% { transform: scale(1.06); box-shadow: 0 0 50px rgba(138, 43, 226, 0.8); }
         }
 
-        /* Viewport Frame */
-        .viewport-wrapper {
+        .start-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.9);
+        }
+
+        .app-viewport {
             position: relative;
             z-index: 10;
             width: 100%;
@@ -105,82 +143,119 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            perspective: 1200px;
         }
 
-        /* Glass Cyber Card */
         .cyber-card {
             width: 100%;
-            max-width: 440px;
-            background: rgba(10, 15, 30, 0.75);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(0, 243, 255, 0.3);
+            max-width: 460px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
             border-radius: 36px;
             padding: 35px 28px;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
-                        0 0 40px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8),
+                        0 0 40px rgba(0, 243, 255, 0.25),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
             position: relative;
             overflow: hidden;
         }
 
-        /* Hatsune Miku Avatar Styling */
-        .miku-avatar-wrapper {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            margin: 0 auto 20px;
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        .miku-frame {
+        /* Miku Character Circle Frame */
+        .miku-avatar-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 25px;
+            transform: translateZ(30px);
+        }
+
+        .miku-avatar-ring {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             padding: 4px;
-            background: linear-gradient(135deg, #00f3ff, #8a2be2, #ff007f);
-            box-shadow: 0 0 35px rgba(0, 243, 255, 0.6);
-            animation: glowRotate 4s linear infinite;
+            background: linear-gradient(135deg, var(--miku-cyan), var(--miku-purple), var(--miku-pink));
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.7);
+            animation: ringRotate 6s linear infinite;
         }
 
-        @keyframes glowRotate {
+        @keyframes ringRotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .miku-img {
+        .miku-avatar-img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #0a0f1e;
+            background-color: #0d1527;
         }
 
-        /* Content Text Area */
-        .content-area {
-            min-height: 190px;
+        /* Music Visualizer Bar */
+        .visualizer-box {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 4px;
+            height: 25px;
+            margin-bottom: 20px;
+            transform: translateZ(20px);
+        }
+
+        .v-bar {
+            width: 4px;
+            height: 6px;
+            background: var(--miku-cyan);
+            border-radius: 4px;
+            transition: height 0.1s ease;
+            box-shadow: 0 0 8px var(--miku-cyan);
+        }
+
+        /* Content Area */
+        .card-content {
+            min-height: 210px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            transform: translateZ(25px);
             transition: opacity 0.35s ease, transform 0.35s ease;
         }
 
-        .content-area.fade {
+        .card-content.fade-out {
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateZ(25px) translateY(12px);
         }
 
-        .title-text {
-            font-size: 25px;
+        .card-title {
+            font-size: 26px;
             font-weight: 900;
-            background: linear-gradient(135deg, #00f3ff 0%, #d8b4fe 100%);
+            background: linear-gradient(135deg, var(--miku-cyan) 0%, #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             line-height: 1.3;
         }
 
-        .msg-text {
+        .card-msg {
             font-size: 16px;
             line-height: 1.8;
             color: #e0f2fe;
@@ -188,44 +263,44 @@
             margin-bottom: 25px;
         }
 
-        /* Buttons */
-        .btn-box {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            width: 100%;
-            flex-wrap: wrap;
-        }
-
         .action-btn {
-            background: linear-gradient(135deg, #00f3ff 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, var(--miku-cyan) 0%, var(--miku-purple) 100%);
             color: #ffffff;
             border: none;
-            padding: 15px 32px;
-            font-size: 16px;
+            padding: 16px 36px;
+            font-size: 17px;
             font-weight: 800;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0, 243, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.4);
             transition: all 0.3s ease;
             width: 100%;
-            max-width: 240px;
+            max-width: 260px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
 
         .action-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(138, 43, 226, 0.7);
         }
 
-        /* Progress Dots */
-        .dots-row {
+        .action-btn:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Navigation Dots */
+        .step-dots {
             display: flex;
             justify-content: center;
             gap: 8px;
             margin-top: 25px;
+            transform: translateZ(15px);
         }
 
-        .dot-node {
+        .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -233,112 +308,226 @@
             transition: all 0.4s ease;
         }
 
-        .dot-node.active {
+        .dot.active {
             width: 28px;
-            border-radius: 10px;
-            background: #00f3ff;
-            box-shadow: 0 0 12px #00f3ff;
+            border-radius: 12px;
+            background: var(--miku-cyan);
+            box-shadow: 0 0 12px var(--miku-cyan);
         }
 
-        .counter-val {
-            font-size: 44px;
+        .metric-counter {
+            font-size: 46px;
             font-weight: 900;
-            background: linear-gradient(135deg, #00f3ff, #c084fc, #ff007f);
+            background: linear-gradient(135deg, var(--miku-cyan), var(--miku-pink), #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 12px 0;
+            margin: 15px 0;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+
+        /* Audio Control Floating Badge */
+        .music-control-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .music-control-badge:hover {
+            border-color: var(--miku-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        .disc-icon {
+            color: var(--miku-cyan);
+            font-size: 18px;
+            animation: spinDisc 3s linear infinite;
+        }
+
+        .disc-icon.paused {
+            animation-play-state: paused;
+            color: #64748b;
+        }
+
+        @keyframes spinDisc {
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Intro Overlay Screen for Autoplay -->
-    <div class="intro-overlay" id="introOverlay">
-        <div class="miku-logo">初音ミク WORLD</div>
-        <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px;">رسالة خاصة وإهداء محضر لحسون 💙✨</p>
-        <button class="start-btn" onclick="startExperience()">دخول العالم 🎧</button>
+    <!-- Audio Element Streaming Real Song -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://cdns-preview-d.dzcdn.net/stream/c-d38a0871ea04d7d91e6b541334907106-4.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Floating Widget -->
+    <div class="music-control-badge" onclick="toggleAudio()">
+        <i class="fa-solid fa-compact-disc disc-icon" id="discIcon"></i>
+        <span style="font-size: 13px; font-weight: 700; color: #e2e8f0;" id="songTitleText">Луна не знает пути 🎵</span>
     </div>
 
-    <!-- 3D Background Canvas -->
-    <div id="canvas-container"></div>
+    <div class="intro-screen" id="introScreen">
+        <div class="japanese-title">初音ミク • HASSUN</div>
+        <p class="intro-sub">إهداء أوتاكو خاص وسينمائي بحجم مجرة لأغلى صديق 💙✨</p>
+        <button class="start-btn" onclick="initializeWorld()">
+            <span>دخول العالم</span>
+            <i class="fa-solid fa-headphones"></i>
+        </button>
+    </div>
+
+    <!-- 3D WebGL Canvas -->
+    <div id="webgl-container"></div>
 
     <!-- Main Viewport -->
-    <div class="viewport-wrapper">
-        <div class="cyber-card">
+    <div class="app-viewport">
+        <div class="cyber-card" id="cardElement">
             
             <!-- Miku Anime Avatar -->
-            <div class="miku-avatar-wrapper">
-                <div class="miku-frame">
-                    <!-- High Quality Official Hatsune Miku Image -->
-                    <img class="miku-img" src="https://images.alphacoders.com/836/836814.png" alt="Hatsune Miku">
+            <div class="miku-avatar-container">
+                <div class="miku-avatar-ring">
+                    <img class="miku-avatar-img" src="https://images.alphacoders.com/836/836814.png" alt="Hatsune Miku" onerror="this.src='https://placehold.co/300x300/0a0f1e/00f3ff?text=Miku+Anime'">
                 </div>
             </div>
 
-            <div class="content-area" id="contentArea"></div>
-            <div class="dots-row" id="dotsRow"></div>
+            <!-- Equalizer Bar Animation -->
+            <div class="visualizer-box" id="visualizer">
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+                <div class="v-bar"></div>
+            </div>
+
+            <!-- Dynamic Interactive Content -->
+            <div class="card-content" id="cardContent"></div>
+
+            <!-- Progress Indicators -->
+            <div class="step-dots" id="stepDots"></div>
         </div>
     </div>
 
     <script>
         // =========================================================
-        // 1. THREE.JS 3D SCENE SETUP (SAKURA & CYBER SPACE)
+        // 1. THREE.JS 3D SCENE & SAKURA PARTICLE SYSTEM
         // =========================================================
-        const container = document.getElementById('canvas-container');
+        const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x030712, 0.02);
+        scene.fog = new THREE.FogExp2(0x030712, 0.025);
 
-        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 22;
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 25;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
-        const mikuLight = new THREE.PointLight(0x00f3ff, 4, 50);
-        mikuLight.position.set(10, 10, 10);
-        scene.add(mikuLight);
+        const pointLight1 = new THREE.PointLight(0x00f3ff, 3, 50);
+        pointLight1.position.set(10, 15, 10);
+        scene.add(pointLight1);
 
-        const purpleLight = new THREE.PointLight(0x8a2be2, 3, 50);
-        purpleLight.position.set(-10, -10, -10);
-        scene.add(purpleLight);
+        const pointLight2 = new THREE.PointLight(0x8a2be2, 3, 50);
+        pointLight2.position.set(-10, -15, -10);
+        scene.add(pointLight2);
 
-        // Floating Sakura Petals
-        const sakuraCount = 150;
+        // Sakura Floating Particles
+        const sakuraCount = 200;
         const sakuraGeo = new THREE.BufferGeometry();
         const sakuraPos = new Float32Array(sakuraCount * 3);
+        const sakuraSpeed = [];
 
         for (let i = 0; i < sakuraCount * 3; i += 3) {
-            sakuraPos[i] = (Math.random() - 0.5) * 50;
-            sakuraPos[i+1] = (Math.random() - 0.5) * 50;
-            sakuraPos[i+2] = (Math.random() - 0.5) * 30;
+            sakuraPos[i] = (Math.random() - 0.5) * 60;
+            sakuraPos[i+1] = (Math.random() - 0.5) * 60;
+            sakuraPos[i+2] = (Math.random() - 0.5) * 40;
+
+            sakuraSpeed.push({
+                y: 0.03 + Math.random() * 0.05,
+                x: (Math.random() - 0.5) * 0.02,
+                r: Math.random() * 0.05
+            });
         }
 
         sakuraGeo.setAttribute('position', new THREE.BufferAttribute(sakuraPos, 3));
+
+        // Create glowing petal texture via Canvas
+        function createPetalTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            grad.addColorStop(0, '#00f3ff');
+            grad.addColorStop(0.6, '#ff007f');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 32, 32);
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+
         const sakuraMat = new THREE.PointsMaterial({
-            size: 0.35,
-            color: 0x00f3ff,
+            size: 0.8,
+            map: createPetalTexture(),
             transparent: true,
-            opacity: 0.8
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
         });
-        const sakuraSystem = new THREE.Points(sakuraGeo, sakuraMat);
-        scene.add(sakuraSystem);
+
+        const sakuraParticles = new THREE.Points(sakuraGeo, sakuraMat);
+        scene.add(sakuraParticles);
+
+        // Rotating Cyber Rings
+        const ringGeo = new THREE.TorusGeometry(12, 0.05, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 });
+        const cyberRing = new THREE.Mesh(ringGeo, ringMat);
+        scene.add(cyberRing);
 
         const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
 
-            sakuraSystem.rotation.y = elapsedTime * 0.03;
-            sakuraSystem.position.y = Math.sin(elapsedTime * 0.5) * 1.5;
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const delta = clock.getElapsedTime();
+
+            // Animate Sakura
+            const positions = sakuraParticles.geometry.attributes.position.array;
+            for (let i = 0; i < sakuraCount; i++) {
+                const idx = i * 3;
+                positions[idx + 1] -= sakuraSpeed[i].y;
+                positions[idx] += Math.sin(delta + i) * 0.01;
+
+                if (positions[idx + 1] < -30) {
+                    positions[idx + 1] = 30;
+                }
+            }
+            sakuraParticles.geometry.attributes.position.needsUpdate = true;
+
+            cyberRing.rotation.x = delta * 0.2;
+            cyberRing.rotation.y = delta * 0.3;
 
             renderer.render(scene, camera);
         }
-        animate();
+        animate3D();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -347,77 +536,93 @@
         });
 
         // =========================================================
-        // 2. RUSSIAN SONG SYNTHESIZER (Луна не знает пути)
+        // 2. 3D CARD TILT EFFECT & INTERACTIVITY
         // =========================================================
-        let audioCtx;
-        function playRussianMelody() {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
+        const card = document.getElementById('cardElement');
+        window.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
 
-            // Notes for "Luna ne znaet puti"
-            const notes = [
-                { f: 329.63, d: 0.4 }, { f: 392.00, d: 0.4 }, { f: 440.00, d: 0.4 }, { f: 392.00, d: 0.4 },
-                { f: 329.63, d: 0.6 }, { f: 293.66, d: 0.4 }, { f: 261.63, d: 0.6 }, { f: 293.66, d: 0.8 }
-            ];
-
-            let time = audioCtx.currentTime + 0.1;
-
-            function playLoop() {
-                notes.forEach(note => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(note.f, time);
-
-                    gain.gain.setValueAtTime(0.2, time);
-                    gain.gain.exponentialRampToValueAtTime(0.001, time + note.d);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start(time);
-                    osc.stop(time + note.d);
-
-                    time += note.d + 0.05;
-                });
-                setTimeout(playLoop, (time - audioCtx.currentTime) * 1000);
+        // Touch tilt for mobile
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                const xAxis = (window.innerWidth / 2 - e.touches[0].pageX) / 30;
+                const yAxis = (window.innerHeight / 2 - e.touches[0].pageY) / 30;
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
             }
+        });
 
-            playLoop();
+        // =========================================================
+        // 3. AUDIO PLAYER & VISUALIZER
+        // =========================================================
+        const audio = document.getElementById('bgMusic');
+        const discIcon = document.getElementById('discIcon');
+        const vBars = document.querySelectorAll('.v-bar');
+        let isPlaying = false;
+
+        function initializeWorld() {
+            document.getElementById('introScreen').classList.add('hidden');
+            playAudio();
         }
 
-        function startExperience() {
-            document.getElementById('introOverlay').classList.add('hidden');
-            playRussianMelody();
+        function playAudio() {
+            audio.play().then(() => {
+                isPlaying = true;
+                discIcon.classList.remove('paused');
+                animateVisualizer();
+            }).catch(err => console.log("Audio play error: ", err));
+        }
+
+        function toggleAudio() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                discIcon.classList.add('paused');
+            } else {
+                playAudio();
+            }
+        }
+
+        function animateVisualizer() {
+            if (!isPlaying) {
+                vBars.forEach(bar => bar.style.height = '4px');
+                return;
+            }
+            vBars.forEach(bar => {
+                const h = Math.floor(Math.random() * 22) + 4;
+                bar.style.height = `${h}px`;
+            });
+            setTimeout(animateVisualizer, 120);
         }
 
         // =========================================================
-        // 3. STEP CONTENT LOGIC
+        // 4. INTERACTIVE STEPPER DATA & LOGIC
         // =========================================================
-        const steps = [
+        const storySteps = [
             {
-                title: "هلوو بالضلع حسون ✨",
-                message: "عندي إهداء خاص إلك بتصميم أنمي وموسيقى سينمائية.. جاهز تشووفها؟ 💙",
-                btnText: "شنو هي؟ 🥺"
+                title: "يا هلا بأطلق وأعز صديق حسون 💙",
+                message: "جمعت لك هذا العالم الإفتراضي والموسيقى الروسية الفاخرة خصيصاً إلك.. جاهز نشوف المعزتك؟ ✨",
+                btnText: "جاهز نشوف! 🎧"
             },
             {
-                title: "أطلق وأعز صديق 👑",
-                message: "الحياة أهدتني شخصاً حنوناً وجميلاً بجمالك.. ويا بختي بقلبك الطيب والرقيق يا حسوني 💎✨",
+                title: "أخوية وصحبة لا تُقدر بفريد 👑",
+                message: "الحياة تنطينا أصحاب، بس القليل منهم يبقون بالقلب مثل الذهب.. وأنت يا حسوني أجمل وأصفى صديق عرفته 💎✨",
                 btnText: "التالي 💕"
             },
             {
-                title: "سؤال صريح حسوني..",
-                message: "معقولة تحبني وتعتبرني أوفى صديق مثل ما أني أعتبرك أغلى إنسان بصحبتي ودنيتي؟ 🙈❤️",
-                btnText: "اي أكيد أعزك! 💖"
+                title: "سؤال صريح يا حسون..",
+                message: "معقولة غلاوتك ومكانتك عندي تتدرج برقم عادي؟ لو تحس معزتك واصلة للسماء؟ 🙈❤️",
+                btnText: "أكيد لا نهاية لها! 💖"
             },
             {
-                title: "وأني أعزك وأغليك أكثر! ❤️",
-                message: "لو تدري شكد وجودك بالدنيا ينطي طاقة إيجابية.. جان عرفت أنك أجمل شيء بصحبتي ودنيتي كلها 👑✨",
-                btnText: "شوف نسبة غلاك 😍"
+                title: "وأني أعتز بيك أكثر وأكثر! ❤️",
+                message: "لو تدري شكد وجودك وصحبتك ينطون طاقة وإيجابية.. جان عرفت أنك سند وأخ ما يتعوض بكنوز الدنيا كلها 🌸✨",
+                btnText: "احسب نسبة المعزة 😍"
             },
             {
-                title: "نسبة معزتك وغلاك يا حسون:",
+                title: "نسبة المعزة والغلا للضلع حسون:",
                 isFinal: true
             }
         ];
@@ -425,66 +630,68 @@
         let currentStep = 0;
 
         function renderDots() {
-            const container = document.getElementById('dotsRow');
-            container.innerHTML = '';
-            steps.forEach((_, idx) => {
+            const dotsContainer = document.getElementById('stepDots');
+            dotsContainer.innerHTML = '';
+            storySteps.forEach((_, idx) => {
                 const dot = document.createElement('div');
-                dot.className = `dot-node ${idx === currentStep ? 'active' : ''}`;
-                container.appendChild(dot);
+                dot.className = `dot ${idx === currentStep ? 'active' : ''}`;
+                dotsContainer.appendChild(dot);
             });
         }
 
-        function showStep(index) {
-            const step = steps[index];
-            const area = document.getElementById('contentArea');
+        function displayStep(index) {
+            const step = storySteps[index];
+            const contentBox = document.getElementById('cardContent');
 
-            area.classList.add('fade');
+            contentBox.classList.add('fade-out');
 
             setTimeout(() => {
                 if (step.isFinal) {
-                    area.innerHTML = `
-                        <div class="title-text">${step.title}</div>
-                        <div class="counter-val" id="counter">0%</div>
-                        <div class="msg-text" style="margin-bottom:15px;">معزتك لا نهائية يا حسوني الغالي 🌸💖</div>
-                        <div class="btn-box">
-                            <button class="action-btn" onclick="restart()">إعادة العرض 🔄</button>
-                        </div>
+                    contentBox.innerHTML = `
+                        <div class="card-title">${step.title}</div>
+                        <div class="metric-counter" id="counter">0%</div>
+                        <div class="card-msg" style="margin-bottom:15px;">معزتك وغلاوتك لا نهائية يا حسوني الغالي 🌸💖</div>
+                        <button class="action-btn" onclick="resetStory()">
+                            <span>إعادة العرض</span>
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
                     `;
-                    animateCounter();
-                    triggerConfetti();
+                    startCounterAnimation();
+                    launchConfetti();
                 } else {
-                    area.innerHTML = `
-                        <div class="title-text">${step.title}</div>
-                        <div class="msg-text">${step.message}</div>
-                        <div class="btn-box">
-                            <button class="action-btn" onclick="nextStep()">${step.btnText}</button>
-                        </div>
+                    contentBox.innerHTML = `
+                        <div class="card-title">${step.title}</div>
+                        <div class="card-msg">${step.message}</div>
+                        <button class="action-btn" onclick="nextStoryStep()">
+                            <span>${step.btnText}</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                     `;
                 }
 
-                area.classList.remove('fade');
+                contentBox.classList.remove('fade-out');
                 renderDots();
             }, 300);
         }
 
-        function nextStep() {
-            if (currentStep < steps.length - 1) {
+        function nextStoryStep() {
+            if (currentStep < storySteps.length - 1) {
                 currentStep++;
-                showStep(currentStep);
+                displayStep(currentStep);
             }
         }
 
-        function restart() {
+        function resetStory() {
             currentStep = 0;
-            showStep(currentStep);
+            displayStep(currentStep);
         }
 
-        function animateCounter() {
+        function startCounterAnimation() {
             let count = 0;
             const target = 1000000;
             const counterEl = document.getElementById('counter');
             const timer = setInterval(() => {
-                count += 28000;
+                count += 32000;
                 if (count >= target) {
                     counterEl.textContent = "1,000,000% ∞";
                     clearInterval(timer);
@@ -494,16 +701,17 @@
             }, 30);
         }
 
-        function triggerConfetti() {
+        function launchConfetti() {
             confetti({
-                particleCount: 150,
-                spread: 80,
+                particleCount: 160,
+                spread: 90,
                 origin: { y: 0.6 },
-                colors: ['#00f3ff', '#8a2be2', '#ff007f']
+                colors: ['#00f3ff', '#8a2be2', '#ff007f', '#ffffff']
             });
         }
 
-        showStep(0);
+        // Initialize First View
+        displayStep(0);
     </script>
 </body>
 </html>
